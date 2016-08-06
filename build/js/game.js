@@ -392,21 +392,150 @@ window.Game = (function() {
     },
 
     /**
+     * Отрисовываем всплывающие сообщение
+     */
+    _drawPopupMessage: function(x1, y1, width, height, radius, fillColor) {
+
+      radius = (width < 2 * radius) ? width / 2 : radius;
+      radius = (height < 2 * radius) ? height / 2 : radius;
+
+      var x2 = x1 + width;
+      var y2 = y1 + height;
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(x1 + radius, y1);
+      this.ctx.arcTo(x2, y1, x2, y2, radius);
+      this.ctx.arcTo(x2, y2, x1, y2, radius);
+      this.ctx.lineTo(x1 + radius, y2);
+      this.ctx.lineTo(x1, y2 + radius);
+      this.ctx.arcTo(x1, y1, x2, y1, radius);
+      this.ctx.closePath();
+
+      if (fillColor) {
+        this.ctx.fillStyle = fillColor;
+        this.ctx.fill();
+      }
+    },
+
+    /**
+      * Разбить сообщение на строки, не разравая слова и учитывая \n
+      */
+    _toLines: function(message, maxLineLength) {
+
+      var lines = [];
+
+      var brokenLines = message.split('\n');
+
+      for (var i = 0; i < brokenLines.length; i++) {
+        var brLine = brokenLines[i];
+
+        if (brLine.length <= maxLineLength) {
+          lines.push(brLine);
+          continue;
+        }
+
+        var bgnIndex = 0;
+        var endIndex = maxLineLength;
+
+        while(bgnIndex < brLine.length) {
+          var cIndex = brLine.lastIndexOf(' ', endIndex);
+
+          endIndex = (cIndex < 0 || cIndex < bgnIndex) ?
+            bgnIndex + maxLineLength : cIndex;
+
+          lines.push(brLine.slice(bgnIndex, endIndex));
+
+          bgnIndex = (cIndex < 0 || cIndex < bgnIndex) ?
+            endIndex : endIndex + 1;
+
+          endIndex += maxLineLength;
+        }
+      }
+      return lines;
+    },
+
+    /**
+      * Вычислим ширину тектовой области
+      */
+    _mesureTextAreaWidth: function(lines) {
+
+      var maxLineWidth = 0;
+
+      for (var i = 0; i < lines.length; i++) {
+
+        var lineWidth = (this.ctx.measureText(lines[i])).width;
+
+        maxLineWidth = (maxLineWidth > lineWidth) ? maxLineWidth : lineWidth;
+      }
+      return maxLineWidth;
+    },
+
+    /**
+      * Вывести высплывающее сообщение
+      */
+    _printPopupMessage: function(x, y, message, maxLineLength) {
+
+      var SHADOW_OFFSET = 10;
+      var PADDING = 15;
+
+      var MAX_LINE_LENGTH = 35;
+      var TEXT_FONT = '16px PT Mono';
+      var LINE_HEIGHT = 20;
+
+      // Разобьём сообщение на строки и узнаем ширину и высоту сообщения
+      var lines = this._toLines(message, (maxLineLength) ? maxLineLength : MAX_LINE_LENGTH);
+
+      this.ctx.font = TEXT_FONT;
+
+      var popWidth = this._mesureTextAreaWidth(lines) + PADDING * 2;
+      var popHeight = lines.length * LINE_HEIGHT + PADDING * 2;
+
+      // Выведем окно сообщения с тенью
+      this._drawPopupMessage(x + SHADOW_OFFSET, y + SHADOW_OFFSET,
+        popWidth, popHeight, 15, 'rgba(0, 0, 0, 0.7)');
+
+      this._drawPopupMessage(x, y, popWidth, popHeight, 15, '#FFFFFF');
+
+      // Выведем текст сообщения
+      this.ctx.fillStyle = '#000000';
+      this.ctx.textBaseline = 'hanging';
+
+      var xText = x + PADDING;
+      var yText = y + PADDING;
+
+      for(var i = 0; i < lines.length; i++) {
+
+        this.ctx.fillText(lines[i], xText, yText);
+
+        yText += LINE_HEIGHT;
+      }
+    },
+
+    /**
      * Отрисовка экрана паузы.
      */
     _drawPauseScreen: function() {
+
       switch (this.state.currentStatus) {
         case Verdict.WIN:
-          console.log('you have won!');
+          this._printPopupMessage(300, 25,
+            'Поздравляем!\nВы выиграли! Весть о Вашей победе разнесли по всем семи королевствам!');
+          // console.log('you have won!');
           break;
         case Verdict.FAIL:
-          console.log('you have failed!');
+          this._printPopupMessage(300, 25,
+            'Неудача!\nНе отчаиваетесь, всегда можно попробовать еще раз! Just do it!');
+          // console.log('you have failed!');
           break;
         case Verdict.PAUSE:
-          console.log('game is on pause!');
+          this._printPopupMessage(300, 25,
+            'Пауза!\nОтдышитесь, мы никуда не торопимся!');
+          // console.log('game is on pause!');
           break;
         case Verdict.INTRO:
-          console.log('welcome to the game! Press Space to start');
+          this._printPopupMessage(300, 25,
+            'Привет!\nВы готовы к приключениям? Для того чтобы начать игру нажмите клавишу Пробел!');
+          // console.log('welcome to the game! Press Space to start');
           break;
       }
     },
