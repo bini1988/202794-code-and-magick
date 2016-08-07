@@ -478,7 +478,6 @@ window.Game = (function() {
       var SHADOW_OFFSET = 10;
       var PADDING = 15;
 
-
       var MAX_LINE_LENGTH = 35;
       var TEXT_FONT = '16px PT Mono';
       var LINE_HEIGHT = 20;
