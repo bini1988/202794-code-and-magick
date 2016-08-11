@@ -1,5 +1,11 @@
 'use strict';
 
+//require('./check.js');
+require('./game.js');
+require('./form.js');
+//require('./game-stat.min.js');
+
+
 (function() {
   var game = new window.Game(document.querySelector('.demo'));
   game.initializeLevelAndStart();
