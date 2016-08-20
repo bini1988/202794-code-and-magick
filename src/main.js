@@ -3,6 +3,7 @@
 //require('./check.js');
 require('./game.js');
 require('./form.js');
+require('./reviews.js');
 //require('./game-stat.min.js');
 
 
