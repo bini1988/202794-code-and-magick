@@ -30,20 +30,24 @@ var requestJSONP = function(url, callback) {
   var reviewsURL = 'http://localhost:1506/api/reviews';
 
   var IMAGE_LOAD_TIMEOUT = 10000;
+  var IMAGE_AUTHOR_WIDHT = 124;
+  var IMAGE_AUTHOR_HEIGHT = 124;
+  var IMAGE_RAITING_WIDTH = 40;
 
   var getReviewElement = function(data, container) {
 
     var reviewItem = reviewToClone.cloneNode(true);
     var reviewAuthor = reviewItem.querySelector('.review-author');
     var reviewRating = reviewItem.querySelector('.review-rating');
+    var reviewText = reviewItem.querySelector('.review-text');
 
-    var authorPicture = new Image(124, 124);
+    var authorPicture = new Image(IMAGE_AUTHOR_WIDHT, IMAGE_AUTHOR_HEIGHT);
     var pictureLoadTimeout;
 
     authorPicture.onload = function(evt) {
       clearTimeout(pictureLoadTimeout);
-      reviewAuthor.width = 124;
-      reviewAuthor.height = 124;
+      reviewAuthor.width = IMAGE_AUTHOR_WIDHT;
+      reviewAuthor.height = IMAGE_AUTHOR_HEIGHT;
       reviewAuthor.src = evt.target.src;
       reviewAuthor.alt = data.author.name;
       reviewAuthor.title = data.author.name;
@@ -60,9 +64,9 @@ var requestJSONP = function(url, callback) {
 
     authorPicture.src = data.author.picture;
 
-    reviewRating.style.width = (40 * data.rating) + 'px';
+    reviewRating.style.width = (IMAGE_RAITING_WIDTH * data.rating) + 'px';
 
-    reviewItem.querySelector('.review-text').textContent = data.description;
+    reviewText.textContent = data.description;
 
     container.appendChild(reviewItem);
 
