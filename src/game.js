@@ -1,6 +1,6 @@
 'use strict';
 
-window.Game = (function() {
+module.exports = (function() {
   /**
    * @const
    * @type {number}

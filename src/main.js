@@ -1,16 +1,14 @@
 'use strict';
 
-//require('./check.js');
-require('./game.js');
-require('./form.js');
+var Game = require('./game.js');
+var reviewForm = require('./form.js');
 require('./reviews.js');
-//require('./game-stat.min.js');
 
 
 (function() {
-  var game = new window.Game(document.querySelector('.demo'));
+  var game = new Game(document.querySelector('.demo'));
   game.initializeLevelAndStart();
-  game.setGameStatus(window.Game.Verdict.INTRO);
+  game.setGameStatus(Game.Verdict.INTRO);
 
   var formOpenButton = document.querySelector('.reviews-controls-new');
 
@@ -18,13 +16,13 @@ require('./reviews.js');
   formOpenButton.onclick = function(evt) {
     evt.preventDefault();
 
-    window.form.open(function() {
-      game.setGameStatus(window.Game.Verdict.PAUSE);
+    reviewForm.open(function() {
+      game.setGameStatus(Game.Verdict.PAUSE);
       game.setDeactivated(true);
     });
   };
 
-  window.form.onClose = function() {
+  reviewForm.onClose = function() {
     game.setDeactivated(false);
   };
 })();
