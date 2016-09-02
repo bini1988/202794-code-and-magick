@@ -1,23 +1,26 @@
 'use strict';
 
+var IMAGE_LOAD_TIMEOUT = 10000;
+var IMAGE_AUTHOR_WIDHT = 124;
+var IMAGE_AUTHOR_HEIGHT = 124;
+var IMAGE_RAITING_WIDTH = 40;
+
+var reviewTemplate = document.querySelector('#review-template');
+
+var reviewToClone =
+  reviewTemplate.content.querySelector('.review') || reviewTemplate.querySelector('.review');
+
+
 module.exports = function(data, container) {
 
-  var IMAGE_LOAD_TIMEOUT = 10000;
-  var IMAGE_AUTHOR_WIDHT = 124;
-  var IMAGE_AUTHOR_HEIGHT = 124;
-  var IMAGE_RAITING_WIDTH = 40;
-
-  var reviewTemplate = document.querySelector('#review-template');
-
-  var reviewToClone = ('content' in reviewTemplate) ?
-    reviewTemplate.content.querySelector('.review') : reviewTemplate.querySelector('.review');
-
   var reviewItem = reviewToClone.cloneNode(true);
+
   var reviewAuthor = reviewItem.querySelector('.review-author');
   var reviewRating = reviewItem.querySelector('.review-rating');
   var reviewText = reviewItem.querySelector('.review-text');
 
   var authorPicture = new Image(IMAGE_AUTHOR_WIDHT, IMAGE_AUTHOR_HEIGHT);
+
   var pictureLoadTimeout;
 
   authorPicture.onload = function(evt) {
