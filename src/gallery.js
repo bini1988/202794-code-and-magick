@@ -11,8 +11,7 @@ var Gallery = function(srcList) {
   this.galleryClose = document.querySelector('.overlay-gallery-close');
 };
 
-Gallery.prototype = {
-  show: function(activePictureIndex) {
+Gallery.prototype.show = function(activePictureIndex) {
 
     var self = this;
 
@@ -31,16 +30,18 @@ Gallery.prototype = {
     this.galleryOverlay.classList.remove('invisible');
 
     this.setActivePicture(activePictureIndex);
-  },
-  hide: function() {
+};
+
+Gallery.prototype.hide = function() {
 
     this.galleryOverlay.classList.add('invisible');
 
     this.galleryClose.onclick = null;
     this.galleryRightControl.onclick = null;
     this.galleryLeftControl.onclick = null;
-  },
-  setActivePicture: function(activePictureIndex) {
+};
+
+Gallery.prototype.setActivePicture = function(activePictureIndex) {
 
     var IMAGE_LOAD_TIMEOUT = 10000;
     var GALLERY_IMAGE_WIDHT = 800;
@@ -82,7 +83,6 @@ Gallery.prototype = {
     }, IMAGE_LOAD_TIMEOUT);
 
     galleryPicture.src = this.pictures[this.activePicture];
-  }
 };
 
 module.exports = Gallery;

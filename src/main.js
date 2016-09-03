@@ -30,7 +30,7 @@ reviewForm.onClose = function() {
 
 
 /**
-  * Галерея скринщотов
+  * Галерея скриншотов
   */
 
 var galleryImages = document.querySelectorAll('.photogallery .photogallery-image img');

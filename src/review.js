@@ -11,7 +11,7 @@ var reviewToClone =
   reviewTemplate.content.querySelector('.review') || reviewTemplate.querySelector('.review');
 
 
-module.exports = function(data, container) {
+module.exports = function(data) {
 
   var reviewItem = reviewToClone.cloneNode(true);
 
@@ -46,8 +46,6 @@ module.exports = function(data, container) {
   reviewRating.style.width = (IMAGE_RAITING_WIDTH * data.rating) + 'px';
 
   reviewText.textContent = data.description;
-
-  container.appendChild(reviewItem);
 
   return reviewItem;
 };
