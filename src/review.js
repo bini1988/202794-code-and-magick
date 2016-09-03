@@ -11,7 +11,7 @@ var reviewToClone =
   reviewTemplate.content.querySelector('.review') || reviewTemplate.querySelector('.review');
 
 
-module.exports = function(data) {
+function getReviewElement(data) {
 
   var reviewItem = reviewToClone.cloneNode(true);
 
@@ -48,4 +48,35 @@ module.exports = function(data) {
   reviewText.textContent = data.description;
 
   return reviewItem;
+}
+
+var Review = function(data) {
+  this.data = data;
+  this.element = getReviewElement(this.data);
+  this.quizAnswers = this.element.querySelectorAll('.review-quiz-answer');
+
+  var self = this;
+
+  this.onReviewQuizAnswerClick = function(evt) {
+
+    for(var i = 0; i < self.quizAnswers.length; i++) {
+      self.quizAnswers[i].classList.remove('review-quiz-answer-active');
+    }
+
+    evt.target.classList.add('review-quiz-answer-active');
+  };
+
+  for(var i = 0; i < this.quizAnswers.length; i++) {
+    this.quizAnswers[i].onclick = this.onReviewQuizAnswerClick;
+  }
 };
+
+Review.prototype.remove = function() {
+  for(var i = 0; i < this.quizAnswers.length; i++) {
+    this.quizAnswers[i].onclick = null;
+  }
+
+  this.element.parentNode.removeChild(this.element);
+};
+
+module.exports = Review;

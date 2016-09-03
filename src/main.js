@@ -4,6 +4,7 @@ require('./reviews.js');
 
 var Game = require('./game.js');
 var Gallery = require('./gallery.js');
+
 var reviewForm = require('./form.js');
 
 
