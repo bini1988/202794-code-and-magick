@@ -1,23 +1,26 @@
 'use strict';
 
-module.exports = function(data, container) {
+var IMAGE_LOAD_TIMEOUT = 10000;
+var IMAGE_AUTHOR_WIDHT = 124;
+var IMAGE_AUTHOR_HEIGHT = 124;
+var IMAGE_RAITING_WIDTH = 40;
 
-  var IMAGE_LOAD_TIMEOUT = 10000;
-  var IMAGE_AUTHOR_WIDHT = 124;
-  var IMAGE_AUTHOR_HEIGHT = 124;
-  var IMAGE_RAITING_WIDTH = 40;
+var reviewTemplate = document.querySelector('#review-template');
 
-  var reviewTemplate = document.querySelector('#review-template');
+var reviewToClone =
+  reviewTemplate.content.querySelector('.review') || reviewTemplate.querySelector('.review');
 
-  var reviewToClone = ('content' in reviewTemplate) ?
-    reviewTemplate.content.querySelector('.review') : reviewTemplate.querySelector('.review');
+
+function getReviewElement(data) {
 
   var reviewItem = reviewToClone.cloneNode(true);
+
   var reviewAuthor = reviewItem.querySelector('.review-author');
   var reviewRating = reviewItem.querySelector('.review-rating');
   var reviewText = reviewItem.querySelector('.review-text');
 
   var authorPicture = new Image(IMAGE_AUTHOR_WIDHT, IMAGE_AUTHOR_HEIGHT);
+
   var pictureLoadTimeout;
 
   authorPicture.onload = function(evt) {
@@ -44,7 +47,36 @@ module.exports = function(data, container) {
 
   reviewText.textContent = data.description;
 
-  container.appendChild(reviewItem);
-
   return reviewItem;
+}
+
+var Review = function(data) {
+  this.data = data;
+  this.element = getReviewElement(this.data);
+  this.quizAnswers = this.element.querySelectorAll('.review-quiz-answer');
+
+  var self = this;
+
+  this.onReviewQuizAnswerClick = function(evt) {
+
+    for(var i = 0; i < self.quizAnswers.length; i++) {
+      self.quizAnswers[i].classList.remove('review-quiz-answer-active');
+    }
+
+    evt.target.classList.add('review-quiz-answer-active');
+  };
+
+  for(var i = 0; i < this.quizAnswers.length; i++) {
+    this.quizAnswers[i].onclick = this.onReviewQuizAnswerClick;
+  }
 };
+
+Review.prototype.remove = function() {
+  for(var i = 0; i < this.quizAnswers.length; i++) {
+    this.quizAnswers[i].onclick = null;
+  }
+
+  this.element.parentNode.removeChild(this.element);
+};
+
+module.exports = Review;

@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = function(url, callback) {
+var CALLBACK_FUNCTION_NAME = 'JSONPCallback';
 
-  var CALLBACK_FUNCTION_NAME = 'JSONPCallback';
+module.exports = function(url, callback) {
 
   window[CALLBACK_FUNCTION_NAME] = function(data) {
 
@@ -16,5 +16,4 @@ module.exports = function(url, callback) {
   scriptTag.src = url + '?callback=' + CALLBACK_FUNCTION_NAME;
 
   document.body.appendChild(scriptTag);
-
 };

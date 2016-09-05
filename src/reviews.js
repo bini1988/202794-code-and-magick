@@ -1,23 +1,28 @@
 'use strict';
 
+var Review = require('./review.js');
+
 var requestJSONP = require('./load.js');
-var getReviewElement = require('./review.js');
 
-module.exports = (function() {
 
-  var reviewsFilter = document.querySelector('.reviews-filter');
-  var reviewsList = document.querySelector('.reviews-list');
-  var reviewsURL = 'http://localhost:1506/api/reviews';
+var reviewsFilter = document.querySelector('.reviews-filter');
+var reviewsList = document.querySelector('.reviews-list');
+var reviewsArr = [];
 
-  requestJSONP(reviewsURL, function(reviews) {
+var reviewsURL = 'http://localhost:1506/api/reviews';
 
-    reviewsFilter.classList.add('invisible');
+requestJSONP(reviewsURL, function(reviews) {
 
-    reviews.forEach(function(item) {
-      getReviewElement(item, reviewsList);
-    });
+  reviewsFilter.classList.add('invisible');
 
-    reviewsFilter.classList.remove('invisible');
+  reviews.forEach(function(item) {
+
+    var review = new Review(item);
+
+    reviewsArr.push(review);
+
+    reviewsList.appendChild(review.element);
   });
 
-})();
+  reviewsFilter.classList.remove('invisible');
+});
