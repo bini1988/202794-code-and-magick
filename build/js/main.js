@@ -53,11 +53,51 @@
 	
 	var reviewForm = __webpack_require__(6);
 	
+	var DEFAULT_THROTTLE_DELAY = 100;
 	
-	var game = new Game(document.querySelector('.demo'));
+	function isVisibleElement(element) {
+	  return element.getBoundingClientRect().bottom >= 0;
+	}
+	
+	function throttle(callback, timeout) {
+	
+	  var isExecutable = true;
+	
+	  return function(args) {
+	    if (isExecutable) {
+	
+	      callback(args);
+	
+	      isExecutable = false;
+	
+	      setTimeout(function() {
+	        isExecutable = true;
+	      }, timeout);
+	    }
+	  };
+	}
+	
+	var demoElement = document.querySelector('.demo');
+	
+	var game = new Game(demoElement);
 	
 	game.initializeLevelAndStart();
 	game.setGameStatus(Game.Verdict.INTRO);
+	
+	
+	function demoScrollHandler() {
+	  if (!isVisibleElement(demoElement)) {
+	    game.setGameStatus(Game.Verdict.PAUSE);
+	  }
+	}
+	
+	var optimizedDemoScrollHandler = throttle(demoScrollHandler, DEFAULT_THROTTLE_DELAY);
+	
+	window.addEventListener('scroll', optimizedDemoScrollHandler);
+	
+	/**
+	  * Форма отзыва
+	  */
 	
 	var formOpenButton = document.querySelector('.reviews-controls-new');
 	
@@ -101,6 +141,34 @@
 	
 	  galleryImageRefs[j].onclick = galleryImageOnClickHandler;
 	}
+	
+	
+	/**
+	  * Эффект параллакса
+	  */
+	
+	var headerClouds = document.querySelector('.header-clouds');
+	
+	function cloudsMoveScrollHandler() {
+	
+	  var doc = document.documentElement;
+	  var scrollPos = (window.pageYOffset || doc.scrollTop);
+	
+	  headerClouds.style.backgroundPosition = scrollPos + 'px';
+	}
+	
+	function cloudsVisibleScrollHandler() {
+	  if (isVisibleElement(headerClouds)) {
+	    window.addEventListener('scroll', cloudsMoveScrollHandler);
+	  } else {
+	    window.removeEventListener('scroll', cloudsMoveScrollHandler);
+	  }
+	}
+	
+	var optimizedCloudsVisibleScrollHandler = throttle(cloudsVisibleScrollHandler, DEFAULT_THROTTLE_DELAY);
+	
+	window.addEventListener('scroll', cloudsMoveScrollHandler);
+	window.addEventListener('scroll', optimizedCloudsVisibleScrollHandler);
 
 
 /***/ },
@@ -111,16 +179,21 @@
 	
 	var Review = __webpack_require__(2);
 	
-	var requestJSONP = __webpack_require__(3);
+	var load = __webpack_require__(3);
 	
+	var REVIEWS_LOAD_URL = 'http://localhost:1506/api/reviews';
+	var PAGE_SIZE = 3;
 	
 	var reviewsFilter = document.querySelector('.reviews-filter');
-	var reviewsList = document.querySelector('.reviews-list');
+	var reviewsContainer = document.querySelector('.reviews-list');
+	var reviewsNextReviewButton = document.querySelector('.reviews-controls-more');
+	
 	var reviewsArr = [];
+	var currentPage = 0;
+	var currentFilter = 'reviews-all';
 	
-	var reviewsURL = 'http://localhost:1506/api/reviews';
 	
-	requestJSONP(reviewsURL, function(reviews) {
+	function renderReviews(reviews) {
 	
 	  reviewsFilter.classList.add('invisible');
 	
@@ -130,11 +203,67 @@
 	
 	    reviewsArr.push(review);
 	
-	    reviewsList.appendChild(review.element);
+	    reviewsContainer.appendChild(review.element);
 	  });
 	
 	  reviewsFilter.classList.remove('invisible');
+	}
+	
+	function getLoadOptions(page, filterName) {
+	
+	  var options = '';
+	
+	  options += '?from=' + (page * PAGE_SIZE) || 0;
+	  options += '&to=' + (page * PAGE_SIZE + PAGE_SIZE) || Number.MAX_VALUE;
+	  options += '&filter=' + filterName || 'reviews-all';
+	
+	  return options;
+	}
+	
+	load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), renderReviews);
+	
+	
+	/**
+	  * ������ ��������� ��� ������
+	  */
+	
+	reviewsNextReviewButton.addEventListener('click', function() {
+	
+	  load(REVIEWS_LOAD_URL, getLoadOptions(++currentPage, currentFilter), function(reviews) {
+	    if (reviews && reviews.length > 0) {
+	      renderReviews(reviews);
+	    }
+	  });
 	});
+	
+	reviewsNextReviewButton.classList.remove('invisible');
+	
+	
+	/**
+	  * �������
+	  */
+	
+	function applyFilter(filterName) {
+	
+	  currentFilter = filterName;
+	  currentPage = 0;
+	
+	  load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), function(reviews) {
+	    reviewsContainer.innerHTML = '';
+	    renderReviews(reviews);
+	  });
+	}
+	
+	reviewsFilter.addEventListener('click', function(evt) {
+	
+	  if (evt.target.classList.contains('reviews-filter-item')) {
+	    var filterName = evt.target.getAttribute('for');
+	
+	    if (filterName !== currentFilter) {
+	      applyFilter(filterName);
+	    }
+	  }
+	}, true);
 
 
 /***/ },
@@ -231,22 +360,36 @@
 
 	'use strict';
 	
-	var CALLBACK_FUNCTION_NAME = 'JSONPCallback';
+	module.exports = function(url, options, callback) {
 	
-	module.exports = function(url, callback) {
+	  var xhr = new XMLHttpRequest();
 	
-	  window[CALLBACK_FUNCTION_NAME] = function(data) {
+	  if (options) {
+	    url += options;
+	  }
 	
-	    if (typeof callback === 'function') {
-	      callback(data);
-	    }
+	  xhr.onload = function(evt) {
+	
+	    var loadedData = JSON.parse(evt.target.response);
+	
+	    callback(loadedData);
 	  };
 	
-	  var scriptTag = document.createElement('script');
+	  xhr.onerror = function() {
 	
-	  scriptTag.src = url + '?callback=' + CALLBACK_FUNCTION_NAME;
+	    console.warn('������ ��� ������� ��������� � ������� ' + url);
+	  };
 	
-	  document.body.appendChild(scriptTag);
+	  xhr.timeout = 10000;
+	
+	  xhr.ontimeout = function() {
+	
+	    console.warn('��������� � ������� ' + url + '. ��� ������ �� �������.');
+	  };
+	
+	  xhr.open('GET', url);
+	
+	  xhr.send();
 	};
 
 
