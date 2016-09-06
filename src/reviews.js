@@ -13,7 +13,8 @@ var reviewsNextReviewButton = document.querySelector('.reviews-controls-more');
 
 var reviewsArr = [];
 var currentPage = 0;
-var currentFilter = 'reviews-all';
+var savedFilter = localStorage.getItem('currentFilter');
+var currentFilter = savedFilter || 'reviews-all';
 
 
 function renderReviews(reviews) {
@@ -74,7 +75,15 @@ function applyFilter(filterName) {
   load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), function(reviews) {
     reviewsContainer.innerHTML = '';
     renderReviews(reviews);
+
+    localStorage.setItem('currentFilter', currentFilter);
   });
+}
+
+var checkedFilter = reviewsFilter.querySelector('input[value="' + currentFilter + '"]');
+
+if (checkedFilter) {
+  checkedFilter.checked = true;
 }
 
 reviewsFilter.addEventListener('click', function(evt) {
