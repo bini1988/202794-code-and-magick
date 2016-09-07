@@ -28,7 +28,8 @@ function inherit(protoObj) {
 }
 
 var utils = {
-  throttle: throttle
+  throttle: throttle,
+  inherit: inherit
 };
 
 module.exports = utils;

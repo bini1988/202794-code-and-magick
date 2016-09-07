@@ -4,7 +4,7 @@ var BaseComponent = function(el) {
   this.element = el;
 };
 
-BaseComponent.prototype.show(parentNode) {
+BaseComponent.prototype.show = function(parentNode) {
   parentNode.appendChild(this.element);
 };
 
