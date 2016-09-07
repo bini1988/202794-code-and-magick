@@ -7,15 +7,14 @@ var load = require('./load.js');
 var REVIEWS_LOAD_URL = 'http://localhost:1506/api/reviews';
 var PAGE_SIZE = 3;
 
-var reviewsFilter = document.querySelector('.reviews-filter');
-var reviewsContainer = document.querySelector('.reviews-list');
-var reviewsNextReviewButton = document.querySelector('.reviews-controls-more');
-
 var reviewsArr = [];
 var currentPage = 0;
 var savedFilter = localStorage.getItem('currentFilter');
 var currentFilter = savedFilter || 'reviews-all';
 
+var reviewsFilter = document.querySelector('.reviews-filter');
+var reviewsContainer = document.querySelector('.reviews-list');
+var reviewsNextReviewButton = document.querySelector('.reviews-controls-more');
 
 function renderReviews(reviews) {
 
@@ -27,10 +26,19 @@ function renderReviews(reviews) {
 
     reviewsArr.push(review);
 
-    reviewsContainer.appendChild(review.element);
+    review.show(reviewsContainer);
   });
 
   reviewsFilter.classList.remove('invisible');
+}
+
+function clearReviewsContainer() {
+
+  reviewsArr.forEach(function(item) {
+    item.remove();
+  });
+
+  reviewsArr = [];
 }
 
 function getLoadOptions(page, filterName) {
@@ -48,7 +56,7 @@ load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), renderReviews
 
 
 /**
-  * Кнопка загрузить еще отзывы
+  * Р—Р°РіСЂСѓР·РёС‚СЊ РѕС‚Р·С‹РІС‹
   */
 
 reviewsNextReviewButton.addEventListener('click', function() {
@@ -64,7 +72,7 @@ reviewsNextReviewButton.classList.remove('invisible');
 
 
 /**
-  * Фильтры
+  * Р¤РёР»СЊС‚СЂС‹
   */
 
 function applyFilter(filterName) {
@@ -73,7 +81,8 @@ function applyFilter(filterName) {
   currentPage = 0;
 
   load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), function(reviews) {
-    reviewsContainer.innerHTML = '';
+
+    clearReviewsContainer();
     renderReviews(reviews);
 
     localStorage.setItem('currentFilter', currentFilter);
@@ -89,6 +98,7 @@ if (checkedFilter) {
 reviewsFilter.addEventListener('click', function(evt) {
 
   if (evt.target.classList.contains('reviews-filter-item')) {
+
     var filterName = evt.target.getAttribute('for');
 
     if (filterName !== currentFilter) {
