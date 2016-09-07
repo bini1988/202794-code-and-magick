@@ -1,91 +1,100 @@
 'use strict';
 
+var BaseComponent = require('./base-component.js');
+var utils = require('./utils.js');
+
 var Review = function(data) {
-
-  this.IMAGE_RAITING_WIDTH = 40;
-  this.IMAGE_AUTHOR_WIDHT = 124;
-  this.IMAGE_AUTHOR_HEIGHT = 124;
-
   this.data = data;
+  this.authorImage = null;
+  this.pictureLoadTimeout = null;
 
-  this.element = this.getReviewElement();
+  BaseComponent.call(this, this.getReviewElement());
 
-  this.reviewAuthor = this.element.querySelector('.review-author');
+  this.reviewAuthorImage = this.element.querySelector('.review-author');
   this.reviewRating = this.element.querySelector('.review-rating');
   this.reviewText = this.element.querySelector('.review-text');
+  this.quizAnswers = this.element.querySelectorAll('.review-quiz-answer');
 
-  this.authorPicture = null;
-  this.pictureLoadTimeout = null;
-  this.onAuthorPictureLoad = this.onAuthorPictureLoad.bind(this);
-  this.onAuthorPictureLoadError = this.onAuthorPictureLoadError.bind(this);
-  this.onAuthorPictureLoadTimeout = this.onAuthorPictureLoadTimeout.bind(this);
-  this.loadAuthorPicture();
+  this.onAuthorImageLoad = this.onAuthorImageLoad.bind(this);
+  this.onAuthorImageLoadAborted = this.onAuthorImageLoadAborted.bind(this);
+  this.onReviewQuizAnswerClick = this.onReviewQuizAnswerClick.bind(this);
+};
+
+utils.inherit(Review, BaseComponent);
+
+Review.prototype.IMAGE_RAITING_WIDTH = 40;
+Review.prototype.IMAGE_AUTHOR_WIDHT = 124;
+Review.prototype.IMAGE_AUTHOR_HEIGHT = 124;
+Review.prototype.IMAGE_LOAD_TIMEOUT = 10000;
+
+Review.prototype.show = function(parentNode) {
+
+  this.loadAuthorImage();
 
   this.reviewRating.style.width = (this.IMAGE_RAITING_WIDTH * this.data.rating) + 'px';
+
   this.reviewText.textContent = this.data.description;
 
-  this.quizAnswers = this.element.querySelectorAll('.review-quiz-answer');
-  this.onReviewQuizAnswerClick = this.onReviewQuizAnswerClick.bind(this);
+  Array.prototype.forEach.call(this.quizAnswers, function(item) {
+    item.addEventListener('click', this.onReviewQuizAnswerClick);
+  }, this);
 
-  for(var i = 0; i < this.quizAnswers.length; i++) {
-    this.quizAnswers[i].addEventListener('click', this.onReviewQuizAnswerClick);
-  }
-};
-
-Review.prototype.getReviewElement = function() {
-
-  var reviewTemplate = document.querySelector('#review-template');
-
-  var reviewToClone =
-    reviewTemplate.content.querySelector('.review') || reviewTemplate.querySelector('.review');
-
-  return reviewToClone.cloneNode(true);
-};
-
-Review.prototype.onAuthorPictureLoad = function(evt) {
-
-  clearTimeout(this.pictureLoadTimeout);
-
-  this.reviewAuthor.width = this.IMAGE_AUTHOR_WIDHT;
-  this.reviewAuthor.height = this.IMAGE_AUTHOR_HEIGHT;
-  this.reviewAuthor.src = evt.target.src;
-  this.reviewAuthor.alt = this.data.author.name;
-  this.reviewAuthor.title = this.data.author.name;
-};
-
-Review.prototype.onAuthorPictureLoadError = function() {
-
-  this.element.classList.add('review-load-failure');
-};
-
-Review.prototype.onAuthorPictureLoadTimeout = function() {
-  this.authorPicture.src = '';
-  this.element.classList.add('review-load-failure');
-};
-
-
-Review.prototype.loadAuthorPicture = function() {
-
-  var IMAGE_LOAD_TIMEOUT = 10000;
-
-  this.authorPicture = new Image(this.IMAGE_AUTHOR_WIDHT, this.IMAGE_AUTHOR_HEIGHT);
-
-  this.authorPicture.addEventListener('load', this.onAuthorPictureLoad);
-
-  this.authorPicture.addEventListener('error', this.onAuthorPictureLoadError);
-
-  this.pictureLoadTimeout = setTimeout(this.onAuthorPictureLoadTimeout, IMAGE_LOAD_TIMEOUT);
-
-  this.authorPicture.src = this.data.author.picture;
+  BaseComponent.prototype.show.call(this, parentNode);
 };
 
 Review.prototype.remove = function() {
 
-  for(var i = 0; i < this.quizAnswers.length; i++) {
-    this.quizAnswers[i].removeEventListener('click', this.onReviewQuizAnswerClick);
-  }
+  Array.prototype.forEach.call(this.quizAnswers, function(item) {
+    item.removeEventListener('click', this.onReviewQuizAnswerClick);
+  }, this);
 
-  this.element.parentNode.removeChild(this.element);
+  BaseComponent.prototype.remote.call(this);
+};
+
+Review.prototype.getReviewElement = function() {
+
+  var template = document.querySelector('#review-template');
+
+  var reviewToClone =
+    template.content.querySelector('.review') || template.querySelector('.review');
+
+  return reviewToClone.cloneNode(true);
+};
+
+Review.prototype.onAuthorImageLoad = function(evt) {
+
+  clearTimeout(this.pictureLoadTimeout);
+
+  this.reviewAuthorImage.width = this.IMAGE_AUTHOR_WIDHT;
+  this.reviewAuthorImage.height = this.IMAGE_AUTHOR_HEIGHT;
+
+  this.reviewAuthorImage.src = evt.target.src;
+
+  this.reviewAuthorImage.alt = this.data.author.name;
+  this.reviewAuthorImage.title = this.data.author.name;
+};
+
+Review.prototype.onAuthorImageLoadError = function() {
+
+  this.element.classList.add('review-load-failure');
+};
+
+Review.prototype.onAuthorImageLoadAborted = function() {
+
+  this.authorImage.src = '';
+  this.element.classList.add('review-load-failure');
+};
+
+Review.prototype.loadAuthorImage = function() {
+
+  this.authorImage = new Image(this.IMAGE_AUTHOR_WIDHT, this.IMAGE_AUTHOR_HEIGHT);
+
+  this.authorImage.addEventListener('load', this.onAuthorImageLoad);
+  this.authorImage.addEventListener('error', this.onAuthorImageLoadAborted);
+
+  this.pictureLoadTimeout = setTimeout(this.onAuthorImageLoadAborted, this.IMAGE_LOAD_TIMEOUT);
+
+  this.authorImage.src = this.data.author.picture;
 };
 
 Review.prototype.onReviewQuizAnswerClick = function(evt) {
