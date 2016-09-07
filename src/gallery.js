@@ -25,6 +25,7 @@ var Gallery = function(srcList) {
   this.onGalleryRightControlClick = this.onGalleryRightControlClick.bind(this);
   this.onGalleryLeftControlClick = this.onGalleryLeftControlClick.bind(this);
   this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
+  this.onGalleryPictureLoadAborted = this.onGalleryPictureLoadAborted.bind(this);
 };
 
 utils.inherit(Gallery, BaseComponent);
@@ -84,6 +85,10 @@ Gallery.prototype.onGalleryPictureLoad = function() {
   this.element.classList.remove('invisible');
 };
 
+Gallery.prototype.onGalleryPictureLoadAborted = function() {
+  this.activePictureImg.src = '';
+};
+
 Gallery.prototype.setActivePicture = function(pictureIndex) {
 
   var IMAGE_LOAD_TIMEOUT = 10000;
@@ -98,15 +103,10 @@ Gallery.prototype.setActivePicture = function(pictureIndex) {
   this.activePictureImg = new Image(GALLERY_IMAGE_WIDHT, GALLERY_IMAGE_HEIGHT);
 
   this.activePictureImg.addEventListener('load', this.onGalleryPictureLoad);
-
-  var onGalleryPictureLoadAborted = function() {
-    this.activePictureImg.src = '';
-  };
-
-  this.activePictureImg.addEventListener('error', onGalleryPictureLoadAborted);
+  this.activePictureImg.addEventListener('error', this.onGalleryPictureLoadAborted);
 
   this.pictureLoadTimeout =
-    setTimeout(onGalleryPictureLoadAborted, IMAGE_LOAD_TIMEOUT);
+    setTimeout(this.onGalleryPictureLoadAborted, IMAGE_LOAD_TIMEOUT);
 
   this.activePictureImg.src = this.pictures[this.activePictureIndex];
 };
