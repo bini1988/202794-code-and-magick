@@ -6,29 +6,12 @@ var Game = require('./game.js');
 var Gallery = require('./gallery.js');
 
 var reviewForm = require('./form.js');
+var utils = require('./utils.js');
 
 var DEFAULT_THROTTLE_DELAY = 100;
 
 function isVisibleElement(element) {
   return element.getBoundingClientRect().bottom >= 0;
-}
-
-function throttle(callback, timeout) {
-
-  var isExecutable = true;
-
-  return function(args) {
-    if (isExecutable) {
-
-      callback(args);
-
-      isExecutable = false;
-
-      setTimeout(function() {
-        isExecutable = true;
-      }, timeout);
-    }
-  };
 }
 
 var demoElement = document.querySelector('.demo');
@@ -38,14 +21,13 @@ var game = new Game(demoElement);
 game.initializeLevelAndStart();
 game.setGameStatus(Game.Verdict.INTRO);
 
-
 function demoScrollHandler() {
   if (!isVisibleElement(demoElement)) {
     game.setGameStatus(Game.Verdict.PAUSE);
   }
 }
 
-var optimizedDemoScrollHandler = throttle(demoScrollHandler, DEFAULT_THROTTLE_DELAY);
+var optimizedDemoScrollHandler = utils.throttle(demoScrollHandler, DEFAULT_THROTTLE_DELAY);
 
 window.addEventListener('scroll', optimizedDemoScrollHandler);
 
@@ -119,7 +101,7 @@ function cloudsVisibleScrollHandler() {
   }
 }
 
-var optimizedCloudsVisibleScrollHandler = throttle(cloudsVisibleScrollHandler, DEFAULT_THROTTLE_DELAY);
+var optimizedCloudsVisibleScrollHandler = utils.throttle(cloudsVisibleScrollHandler, DEFAULT_THROTTLE_DELAY);
 
 window.addEventListener('scroll', cloudsMoveScrollHandler);
 window.addEventListener('scroll', optimizedCloudsVisibleScrollHandler);
