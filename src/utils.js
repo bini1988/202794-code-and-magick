@@ -18,6 +18,15 @@ function throttle(callback, timeout) {
   };
 }
 
+function inherit(protoObj) {
+
+  function newObj() {};
+
+  newObj.prototype = protoObj;
+
+  return new newObj();
+}
+
 var utils = {
   throttle: throttle
 };
