@@ -67,17 +67,11 @@ var gallery = new Gallery(galleryImagesSrc);
 
 var galleryImageRefs = document.querySelectorAll('.photogallery .photogallery-image');
 
-for(var j = 0; j < galleryImageRefs.length; j++) {
-
-  var galleryImageOnClickHandler = function handler() {
-    gallery.show(handler.imageIndex);
-  };
-
-  galleryImageOnClickHandler.imageIndex = j;
-
-  galleryImageRefs[j].onclick = galleryImageOnClickHandler;
-}
-
+Array.prototype.forEach.call(galleryImageRefs, function(item, index) {
+  item.addEventListener('click', function () {
+    gallery.show(index);
+  });
+});
 
 /**
   * Эффект параллакса
