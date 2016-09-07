@@ -57,18 +57,17 @@ reviewForm.onClose = function() {
   */
 
 var galleryImages = document.querySelectorAll('.photogallery .photogallery-image img');
-var galleryImagesSrc = [];
 
-for(var i = 0; i < galleryImages.length; i++) {
-  galleryImagesSrc.push(galleryImages[i].src);
-}
+var galleryImagesSrc = Array.prototype.map.call(galleryImages, function(item) {
+  return item.src;
+});
 
 var gallery = new Gallery(galleryImagesSrc);
 
 var galleryImageRefs = document.querySelectorAll('.photogallery .photogallery-image');
 
 Array.prototype.forEach.call(galleryImageRefs, function(item, index) {
-  item.addEventListener('click', function () {
+  item.addEventListener('click', function() {
     gallery.show(index);
   });
 });

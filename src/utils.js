@@ -20,11 +20,11 @@ function throttle(callback, timeout) {
 
 function inherit(protoObj) {
 
-  function newObj() {};
+  function NewObj() {}
 
-  newObj.prototype = protoObj;
+  NewObj.prototype = protoObj;
 
-  return new newObj();
+  return new NewObj();
 }
 
 var utils = {
