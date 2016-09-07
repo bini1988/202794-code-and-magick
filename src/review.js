@@ -48,7 +48,7 @@ Review.prototype.remove = function() {
     item.removeEventListener('click', this.onReviewQuizAnswerClick);
   }, this);
 
-  BaseComponent.prototype.remote.call(this);
+  BaseComponent.prototype.remove.call(this);
 };
 
 Review.prototype.getReviewElement = function() {
