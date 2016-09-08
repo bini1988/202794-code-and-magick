@@ -1,5 +1,6 @@
 'use strict';
 
+var ReviewData = require('./review-data.js');
 var Review = require('./review.js');
 
 var load = require('./load.js');
@@ -22,7 +23,8 @@ function renderReviews(reviews) {
 
   reviews.forEach(function(item) {
 
-    var review = new Review(item);
+    var reviewData = new ReviewData(item);
+    var review = new Review(reviewData);
 
     reviewsArr.push(review);
 

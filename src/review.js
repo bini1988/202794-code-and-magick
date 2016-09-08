@@ -3,8 +3,8 @@
 var BaseComponent = require('./base-component.js');
 var utils = require('./utils.js');
 
-var Review = function(data) {
-  this.data = data;
+var Review = function(reviewData) {
+  this.data = reviewData;
   this.authorImage = null;
   this.pictureLoadTimeout = null;
 
@@ -31,9 +31,9 @@ Review.prototype.show = function(parentNode) {
 
   this.loadAuthorImage();
 
-  this.reviewRating.style.width = (this.IMAGE_RAITING_WIDTH * this.data.rating) + 'px';
+  this.reviewRating.style.width = (this.IMAGE_RAITING_WIDTH * this.data.getRating()) + 'px';
 
-  this.reviewText.textContent = this.data.description;
+  this.reviewText.textContent = this.data.getDescription();
 
   Array.prototype.forEach.call(this.quizAnswers, function(item) {
     item.addEventListener('click', this.onReviewQuizAnswerClick);
@@ -70,8 +70,8 @@ Review.prototype.onAuthorImageLoad = function(evt) {
 
   this.reviewAuthorImage.src = evt.target.src;
 
-  this.reviewAuthorImage.alt = this.data.author.name;
-  this.reviewAuthorImage.title = this.data.author.name;
+  this.reviewAuthorImage.alt = this.data.getAuthorName();
+  this.reviewAuthorImage.title = this.data.getAuthorName();
 };
 
 Review.prototype.onAuthorImageLoadError = function() {
@@ -94,7 +94,7 @@ Review.prototype.loadAuthorImage = function() {
 
   this.pictureLoadTimeout = setTimeout(this.onAuthorImageLoadAborted, this.IMAGE_LOAD_TIMEOUT);
 
-  this.authorImage.src = this.data.author.picture;
+  this.authorImage.src = this.data.getAuthorPicture();
 };
 
 Review.prototype.onReviewQuizAnswerClick = function(evt) {
@@ -104,6 +104,14 @@ Review.prototype.onReviewQuizAnswerClick = function(evt) {
   });
 
   evt.target.classList.add('review-quiz-answer-active');
+
+  if (evt.target.classList.contains('review-quiz-answer-yes')) {
+    this.data.upUsefulness();
+  }
+
+  if (evt.target.classList.contains('review-quiz-answer-no')) {
+    this.data.downUsefulness();
+  }
 };
 
 module.exports = Review;
