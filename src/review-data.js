@@ -17,7 +17,7 @@ ReviewData.prototype.getAuthorName = function() {
   return this.authorName;
 };
 
-ReviewData.prototype.getAauthorPicture = function() {
+ReviewData.prototype.getAuthorPicture = function() {
   return this.authorPicture;
 };
 
