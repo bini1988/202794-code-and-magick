@@ -17,14 +17,14 @@ module.exports = function(url, options, callback) {
 
   xhr.onerror = function() {
 
-    console.warn('Ошибка при попытке обращения к ресурсу ' + url);
+    console.warn('РћС€РёР±РєР° РїСЂРё РїРѕРїС‹С‚РєРµ РґРѕСЃС‚СѓРїР° Рє СЂРµСЃСѓСЂСЃСѓ ' + url);
   };
 
   xhr.timeout = 10000;
 
   xhr.ontimeout = function() {
 
-    console.warn('Обращение к ресурсу ' + url + '. Нет ответа от сервера.');
+    console.warn('РћС€РёР±РєР° РїСЂРё РїРѕРїС‹С‚РєРµ РґРѕСЃС‚СѓРїР° Рє СЂРµСЃСѓСЂСЃСѓ ' + url + '. РџСЂРµРІС‹С€РµРЅ РёРЅС‚РµСЂРІР°Р» РѕР¶РёРґР°РЅРёСЏ.');
   };
 
   xhr.open('GET', url);
