@@ -44,7 +44,9 @@ reviewsFilter.addEventListener('click', function(evt) {
 
 function renderReviewsContainer(data) {
 
-  if (!data || !data.length) return;
+  if (!data || !data.length) {
+    return;
+  }
 
   reviewsFilter.classList.add('invisible');
 
@@ -83,7 +85,9 @@ function getURLOptions(page, filterName) {
 
 function applyFilter(filterName) {
 
-  if (filterName === curFilter) return;
+  if (filterName === curFilter) {
+    return;
+  }
 
   curFilter = filterName;
   curPage = 0;
