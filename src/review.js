@@ -18,6 +18,7 @@ var Review = function(reviewData) {
   this.onAuthorImageLoad = this.onAuthorImageLoad.bind(this);
   this.onAuthorImageLoadAborted = this.onAuthorImageLoadAborted.bind(this);
   this.onReviewQuizAnswerClick = this.onReviewQuizAnswerClick.bind(this);
+  this.onUsefulnessChange = this.onUsefulnessChange.bind(this);
 };
 
 utils.inherit(Review, BaseComponent);
@@ -39,6 +40,8 @@ Review.prototype.show = function(parentNode) {
     item.addEventListener('click', this.onReviewQuizAnswerClick);
   }, this);
 
+  this.data.onUsefulnessChange = this.onUsefulnessChange;
+
   BaseComponent.prototype.show.call(this, parentNode);
 };
 
@@ -47,6 +50,8 @@ Review.prototype.remove = function() {
   Array.prototype.forEach.call(this.quizAnswers, function(item) {
     item.removeEventListener('click', this.onReviewQuizAnswerClick);
   }, this);
+
+  this.data.onUsefulnessChange = null;
 
   BaseComponent.prototype.remove.call(this);
 };
@@ -99,12 +104,6 @@ Review.prototype.loadAuthorImage = function() {
 
 Review.prototype.onReviewQuizAnswerClick = function(evt) {
 
-  Array.prototype.forEach.call(this.quizAnswers, function(item) {
-    item.classList.remove('review-quiz-answer-active');
-  });
-
-  evt.target.classList.add('review-quiz-answer-active');
-
   if (evt.target.classList.contains('review-quiz-answer-yes')) {
     this.data.upUsefulness();
   }
@@ -112,6 +111,19 @@ Review.prototype.onReviewQuizAnswerClick = function(evt) {
   if (evt.target.classList.contains('review-quiz-answer-no')) {
     this.data.downUsefulness();
   }
+};
+
+Review.prototype.onUsefulnessChange = function(sender, args) {
+
+  Array.prototype.forEach.call(this.quizAnswers, function(item) {
+    item.classList.remove('review-quiz-answer-active');
+  });
+
+  var quizAnswer = (args.isUseful)
+    ? this.element.querySelector('.review-quiz-answer-yes')
+    : this.element.querySelector('.review-quiz-answer-no');
+
+  quizAnswer.classList.add('review-quiz-answer-active');
 };
 
 module.exports = Review;
