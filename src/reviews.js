@@ -8,42 +8,71 @@ var load = require('./load.js');
 var REVIEWS_LOAD_URL = 'http://localhost:1506/api/reviews';
 var PAGE_SIZE = 3;
 
-var reviewsArr = [];
-var currentPage = 0;
-var savedFilter = localStorage.getItem('currentFilter');
-var currentFilter = savedFilter || 'reviews-all';
+var reviews = [];
+var curPage = 0;
+var curFilter = localStorage.getItem('curFilter') || 'reviews-all';
 
-var reviewsFilter = document.querySelector('.reviews-filter');
-var reviewsContainer = document.querySelector('.reviews-list');
-var reviewsNextReviewButton = document.querySelector('.reviews-controls-more');
+var reviewsSection = document.querySelector('.reviews');
 
-function renderReviews(reviews) {
+var reviewsFilter = reviewsSection.querySelector('.reviews-filter');
+var reviewsContainer = reviewsSection.querySelector('.reviews-list');
+var reviewsNextButton = reviewsSection.querySelector('.reviews-controls-more');
+
+
+load(REVIEWS_LOAD_URL, getURLOptions(curPage, curFilter), renderReviewsContainer);
+
+reviewsNextButton.addEventListener('click', function() {
+
+  load(REVIEWS_LOAD_URL, getURLOptions(++curPage, curFilter), renderReviewsContainer);
+});
+
+reviewsNextButton.classList.remove('invisible');
+
+var checkedFilter = reviewsFilter.querySelector('input[value="' + curFilter + '"]');
+
+if (checkedFilter) {
+  checkedFilter.checked = true;
+}
+
+reviewsFilter.addEventListener('click', function(evt) {
+
+  if (evt.target.classList.contains('reviews-filter-item')) {
+    applyFilter(evt.target.getAttribute('for'));
+  }
+}, true);
+
+
+function renderReviewsContainer(data) {
+
+  if (!data || !data.length) {
+    return;
+  }
 
   reviewsFilter.classList.add('invisible');
 
-  reviews.forEach(function(item) {
-
-    var reviewData = new ReviewData(item);
-    var review = new Review(reviewData);
-
-    reviewsArr.push(review);
-
-    review.show(reviewsContainer);
+  var reviewItems = data.map(function(item) {
+    return new Review(new ReviewData(item));
   });
+
+  reviewItems.forEach(function(item) {
+    item.show(reviewsContainer);
+  });
+
+  Array.prototype.push.apply(reviews, reviewItems);
 
   reviewsFilter.classList.remove('invisible');
 }
 
 function clearReviewsContainer() {
 
-  reviewsArr.forEach(function(item) {
+  reviews.forEach(function(item) {
     item.remove();
   });
 
-  reviewsArr = [];
+  reviews.length = 0;
 }
 
-function getLoadOptions(page, filterName) {
+function getURLOptions(page, filterName) {
 
   var options = '';
 
@@ -54,57 +83,23 @@ function getLoadOptions(page, filterName) {
   return options;
 }
 
-load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), renderReviews);
-
-
-/**
-  * Загрузить отзывы
-  */
-
-reviewsNextReviewButton.addEventListener('click', function() {
-
-  load(REVIEWS_LOAD_URL, getLoadOptions(++currentPage, currentFilter), function(reviews) {
-    if (reviews && reviews.length > 0) {
-      renderReviews(reviews);
-    }
-  });
-});
-
-reviewsNextReviewButton.classList.remove('invisible');
-
-
-/**
-  * Фильтры
-  */
-
 function applyFilter(filterName) {
 
-  currentFilter = filterName;
-  currentPage = 0;
+  if (filterName === curFilter) {
+    return;
+  }
 
-  load(REVIEWS_LOAD_URL, getLoadOptions(currentPage, currentFilter), function(reviews) {
+  curFilter = filterName;
+  curPage = 0;
+
+  load(REVIEWS_LOAD_URL, getURLOptions(curPage, curFilter), function(data) {
 
     clearReviewsContainer();
-    renderReviews(reviews);
 
-    localStorage.setItem('currentFilter', currentFilter);
+    renderReviewsContainer(data);
+
+    localStorage.setItem('curFilter', curFilter);
   });
 }
 
-var checkedFilter = reviewsFilter.querySelector('input[value="' + currentFilter + '"]');
 
-if (checkedFilter) {
-  checkedFilter.checked = true;
-}
-
-reviewsFilter.addEventListener('click', function(evt) {
-
-  if (evt.target.classList.contains('reviews-filter-item')) {
-
-    var filterName = evt.target.getAttribute('for');
-
-    if (filterName !== currentFilter) {
-      applyFilter(filterName);
-    }
-  }
-}, true);
