@@ -1,44 +1,51 @@
 'use strict';
 
 var ReviewData = function(data) {
-  this.created = data.created;
-  this.authorName = data.author.name;
-  this.authorPicture = data.author.picture;
-  this.reviewUsefulness = data.review_usefulness;
-  this.rating = data.rating;
-  this.description = data.description;
+  this.data = data;
 };
 
+ReviewData.prototype.onUsefulnessChange = null;
+
 ReviewData.prototype.getCreationDate = function() {
-  return this.created;
+  return this.data.created;
 };
 
 ReviewData.prototype.getAuthorName = function() {
-  return this.authorName;
+  return this.data.author.name;
 };
 
 ReviewData.prototype.getAuthorPicture = function() {
-  return this.authorPicture;
+  return this.data.author.picture;
 };
 
 ReviewData.prototype.getUsefulness = function() {
-  return this.reviewUsefulness;
+  return this.data.review_usefulness;
 };
 
 ReviewData.prototype.upUsefulness = function() {
-  return this.reviewUsefulness++;
+
+  if (typeof this.onUsefulnessChange === 'function') {
+    this.onUsefulnessChange(this, { isUseful: true });
+  }
+
+  return this.data.review_usefulness++;
 };
 
 ReviewData.prototype.downUsefulness = function() {
-  return this.reviewUsefulness--;
+
+  if (typeof this.onUsefulnessChange === 'function') {
+    this.onUsefulnessChange(this, { isUseful: false });
+  }
+
+  return this.data.review_usefulness--;
 };
 
 ReviewData.prototype.getRating = function() {
-  return this.rating;
+  return this.data.rating;
 };
 
 ReviewData.prototype.getDescription = function() {
-  return this.description;
+  return this.data.description;
 };
 
 module.exports = ReviewData;
