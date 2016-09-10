@@ -117,11 +117,12 @@ Gallery.prototype.restoreFromHash = function() {
 
   var args = location.hash.split('/');
 
-  var indexScreenshots = args.findIndex(function(item) {
-    return item === 'screenshots';
-  });
+  var indexScreenshots = args.reduce(function(obj, item, index) {
+    obj[item] = index;
+    return obj;
+  }, {})['screenshots'];
 
-  var pictureIndex = (indexScreenshots !== -1 && args.length > indexScreenshots)
+  var pictureIndex = (indexScreenshots && args.length > indexScreenshots)
     ? args[indexScreenshots + 1] - 1 : 0;
 
   pictureIndex = isNaN(pictureIndex) ? 0 : pictureIndex;

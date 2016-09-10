@@ -60,8 +60,9 @@ Review.prototype.getReviewElement = function() {
 
   var template = document.querySelector('#review-template');
 
-  var reviewToClone =
-    template.content.querySelector('.review') || template.querySelector('.review');
+  var reviewToClone = (template.content)
+    ? template.content.querySelector('.review')
+    : template.querySelector('.review');
 
   return reviewToClone.cloneNode(true);
 };

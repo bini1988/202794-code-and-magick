@@ -20,14 +20,14 @@ module.exports = function(url, options, callback) {
     console.warn('Ошибка при попытке доступа к ресурсу ' + url);
   };
 
-  xhr.timeout = 10000;
-
   xhr.ontimeout = function() {
 
     console.warn('Ошибка при попытке доступа к ресурсу ' + url + '. Превышен интервал ожидания.');
   };
 
   xhr.open('GET', url);
+
+  xhr.timeout = 10000;
 
   xhr.send();
 };
