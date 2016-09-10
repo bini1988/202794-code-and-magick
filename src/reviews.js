@@ -11,6 +11,7 @@ var PAGE_SIZE = 3;
 var reviews = [];
 var curPage = 0;
 var curFilter = localStorage.getItem('curFilter') || 'reviews-all';
+var checkedFilter = null;
 
 var reviewsSection = document.querySelector('.reviews');
 
@@ -22,20 +23,18 @@ var reviewsNextButton = reviewsSection.querySelector('.reviews-controls-more');
 load(REVIEWS_LOAD_URL, getURLOptions(curPage, curFilter), renderReviewsContainer);
 
 reviewsNextButton.addEventListener('click', function() {
-
   load(REVIEWS_LOAD_URL, getURLOptions(++curPage, curFilter), renderReviewsContainer);
 });
 
 reviewsNextButton.classList.remove('invisible');
 
-var checkedFilter = reviewsFilter.querySelector('input[value="' + curFilter + '"]');
+checkedFilter = reviewsFilter.querySelector('input[value="' + curFilter + '"]');
 
 if (checkedFilter) {
   checkedFilter.checked = true;
 }
 
 reviewsFilter.addEventListener('click', function(evt) {
-
   if (evt.target.classList.contains('reviews-filter-item')) {
     applyFilter(evt.target.getAttribute('for'));
   }

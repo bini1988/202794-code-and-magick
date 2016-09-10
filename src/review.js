@@ -80,7 +80,6 @@ Review.prototype.onAuthorImageLoad = function(evt) {
 };
 
 Review.prototype.onAuthorImageLoadError = function() {
-
   this.element.classList.add('review-load-failure');
 };
 
