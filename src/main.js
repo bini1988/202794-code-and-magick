@@ -68,9 +68,11 @@ var galleryImageRefs = document.querySelectorAll('.photogallery .photogallery-im
 
 Array.prototype.forEach.call(galleryImageRefs, function(item, index) {
   item.addEventListener('click', function() {
-    gallery.show(index);
+    location.hash = '#gallery/screenshots/' + (index + 1);
   });
 });
+
+gallery.restoreFromHash();
 
 /**
   * Эффект параллакса
