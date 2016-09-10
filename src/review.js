@@ -16,7 +16,8 @@ var Review = function(reviewData) {
   this.quizAnswers = this.element.querySelectorAll('.review-quiz-answer');
 
   this.onAuthorImageLoad = this.onAuthorImageLoad.bind(this);
-  this.onAuthorImageLoadAborted = this.onAuthorImageLoadAborted.bind(this);
+  this.onAuthorImageLoadError = this.onAuthorImageLoadError.bind(this);
+  this.onAuthorImageLoadTimeout = this.onAuthorImageLoadTimeout.bind(this);
   this.onReviewQuizAnswerClick = this.onReviewQuizAnswerClick.bind(this);
   this.onUsefulnessChange = this.onUsefulnessChange.bind(this);
 };
@@ -84,7 +85,7 @@ Review.prototype.onAuthorImageLoadError = function() {
   this.element.classList.add('review-load-failure');
 };
 
-Review.prototype.onAuthorImageLoadAborted = function() {
+Review.prototype.onAuthorImageLoadTimeout = function() {
 
   this.authorImage.src = '';
   this.element.classList.add('review-load-failure');
@@ -95,9 +96,9 @@ Review.prototype.loadAuthorImage = function() {
   this.authorImage = new Image(this.IMAGE_AUTHOR_WIDHT, this.IMAGE_AUTHOR_HEIGHT);
 
   this.authorImage.addEventListener('load', this.onAuthorImageLoad);
-  this.authorImage.addEventListener('error', this.onAuthorImageLoadAborted);
+  this.authorImage.addEventListener('error', this.onAuthorImageLoadError);
 
-  this.pictureLoadTimeout = setTimeout(this.onAuthorImageLoadAborted, this.IMAGE_LOAD_TIMEOUT);
+  this.pictureLoadTimeout = setTimeout(this.onAuthorImageLoadTimeout, this.IMAGE_LOAD_TIMEOUT);
 
   this.authorImage.src = this.data.getAuthorPicture();
 };
