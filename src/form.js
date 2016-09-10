@@ -2,6 +2,28 @@
 
 var browserCookies = require('browser-cookies');
 
+var TEXT_REQUIRED_MARK = 3;
+
+var reviewName = browserCookies.get('review-name');
+var reviewMark = browserCookies.get('review-mark');
+var checkedReviewMark = null;
+
+var form = {
+  onClose: null,
+  open: function(cb) {
+    formContainer.classList.remove('invisible');
+    cb();
+  },
+  close: function() {
+
+    formContainer.classList.add('invisible');
+
+    if (typeof this.onClose === 'function') {
+      this.onClose();
+    }
+  }
+};
+
 var formContainer = document.querySelector('.overlay-container');
 var formCloseButton = document.querySelector('.review-form-close');
 
@@ -18,42 +40,44 @@ var formReviewSubmit = formReview.querySelector('.review-submit');
 var formReviewMarks = formReview.querySelectorAll('input[name="review-mark"]');
 
 
-/**
-  * Вспомогательные функции
-  */
+formReviewName.value = (reviewName) ? reviewName : '';
+formReviewName.required = true;
 
-function getCookieExpireDays() {
+checkedReviewMark = formReview.querySelector('input[value="' + reviewMark + '"]');
 
-  var nowDate = new Date();
-
-  var nowYear = nowDate.getFullYear();
-  var nowMonth = nowDate.getMonth() + 1;
-  var nowDay = nowDate.getDate();
-
-  // Считаем количество дней, прошедших с последнего
-  // прошедшего дня рождения Грейс Хоппер (9 декабря 1906)
-  var birthdayMonth = 9;
-  var birthdayDay = 12;
-
-  var birthdayDate = new Date(nowYear, birthdayMonth - 1, birthdayDay);
-
-  nowDate = new Date(nowYear, nowMonth - 1, nowDay);
-
-  if ((nowDate - birthdayDate) < 0) {
-    //Последнее день рождение было в прошлом году
-    birthdayDate = new Date(nowYear - 1, birthdayMonth - 1, birthdayDay);
-  }
-
-  return (nowDate - birthdayDate) / 1000 / 3600 / 24;
+if (checkedReviewMark) {
+  checkedReviewMark.checked = true;
 }
 
+formReviewText.value = '';
 
-function isNotEmpty(tag) {
-  return tag.value.trim().length;
-}
+formReviewSubmit.disabled = true;
+
+validateReviewForm();
 
 
-var TEXT_REQUIRED_MARK = 3;
+Array.prototype.forEach.call(formReviewMarks, function(item) {
+  item.addEventListener('change', validateReviewForm);
+});
+
+formReviewName.addEventListener('input', validateReviewForm);
+
+formReviewText.addEventListener('input', validateReviewForm);
+
+formReview.addEventListener('submit', function() {
+
+  var reviewMarkValue = formReview.querySelector('input[name="review-mark"]:checked').value;
+  var expireDate = { expires: getCookieExpireDays() };
+
+  browserCookies.set('review-name', formReviewName.value, expireDate);
+  browserCookies.set('review-mark', reviewMarkValue, expireDate);
+});
+
+formCloseButton.addEventListener('click', function(evt) {
+  evt.preventDefault();
+  form.close();
+});
+
 
 function validateReviewForm() {
 
@@ -65,103 +89,40 @@ function validateReviewForm() {
 
   formReviewSubmit.disabled = !isSubmitAllowed;
 
+  formReviewText.required = (reviewMarkValue < TEXT_REQUIRED_MARK);
+
   formReviewFields.style.display = isSubmitAllowed ? 'none' : 'inline-block';
-}
-
-
-/**
-  * Обработчики событий полей ввода формы
-  */
-
-formReviewName.oninput = function() {
 
   formReviewNameLabel.style.display = isNotEmpty(formReviewName) ? 'none' : 'inline';
 
-  validateReviewForm();
-};
-
-formReviewText.oninput = function() {
-
-  formReviewTextLabel.style.display = isNotEmpty(formReviewText) ? 'none' : 'inline';
-
-  validateReviewForm();
-};
-
-var reviewMarksOnChangeHandler = function(evt) {
-
-  formReviewText.required = (evt.currentTarget.value < TEXT_REQUIRED_MARK);
-
-  validateReviewForm();
-};
-
-for (var i = 0; i < formReviewMarks.length; i++) {
-  formReviewMarks[i].onchange = reviewMarksOnChangeHandler;
+  formReviewTextLabel.style.display = !formReviewText.required ||
+    (formReviewText.required && isNotEmpty(formReviewText)) ? 'none' : 'inline';
 }
 
-formReview.onsubmit = function() {
+function getCookieExpireDays() {
 
-  var reviewMarkValue = formReview.querySelector('input[name="review-mark"]:checked').value;
+  var nowDate = new Date();
 
-  var expireDate = { expires: getCookieExpireDays() };
+  var nowYear = nowDate.getFullYear();
+  var nowMonth = nowDate.getMonth() + 1;
+  var nowDay = nowDate.getDate();
 
-  browserCookies.set('review-name', formReviewName.value, expireDate);
-  browserCookies.set('review-mark', reviewMarkValue, expireDate);
-};
+  var birthdayMonth = 9;
+  var birthdayDay = 12;
 
-formCloseButton.onclick = function(evt) {
-  evt.preventDefault();
-  form.close();
-};
+  var birthdayDate = new Date(nowYear, birthdayMonth - 1, birthdayDay);
 
+  nowDate = new Date(nowYear, nowMonth - 1, nowDay);
 
-/**
-  * Объект Форма
-  */
-
-var form = {
-  onClose: null,
-
-  /**
-    * @param {Function} cb
-    */
-  open: function(cb) {
-    formContainer.classList.remove('invisible');
-    cb();
-  },
-
-  close: function() {
-    formContainer.classList.add('invisible');
-
-    if (typeof this.onClose === 'function') {
-      this.onClose();
-    }
+  if ((nowDate - birthdayDate) < 0) {
+    birthdayDate = new Date(nowYear - 1, birthdayMonth - 1, birthdayDay);
   }
-};
 
-
-/**
-  * Установим значения по умолчанию
-  */
-
-var reviewName = browserCookies.get('review-name');
-var reviewMark = browserCookies.get('review-mark');
-
-var checkedReviewMark = formReview.querySelector('input[value="' + reviewMark + '"]');
-
-formReviewName.value = (reviewName) ? reviewName : '';
-formReviewName.required = true;
-
-if (checkedReviewMark) {
-  checkedReviewMark.checked = true;
+  return (nowDate - birthdayDate) / 1000 / 3600 / 24;
 }
 
-formReviewText.value = '';
-
-formReviewSubmit.disabled = true;
-
-
-/**
-  * Экспорт
-  */
+function isNotEmpty(tag) {
+  return tag.value.trim().length;
+}
 
 module.exports = form;
