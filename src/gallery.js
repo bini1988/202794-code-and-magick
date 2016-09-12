@@ -127,7 +127,7 @@ Gallery.prototype.restoreFromHash = function() {
     return obj;
   }, {})['screenshots'];
 
-  var pictureIndex = (indexScreenshots && args.length > indexScreenshots)
+  var pictureIndex = ((indexScreenshots + 1) && args.length > indexScreenshots)
     ? args[indexScreenshots + 1] - 1 : 0;
 
   pictureIndex = isNaN(pictureIndex) ? 0 : pictureIndex;
