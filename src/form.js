@@ -18,7 +18,7 @@ var form = {
 
     formContainer.classList.add('invisible');
 
-    if (this.onClose === 'function') {
+    if (typeof this.onClose === 'function') {
       this.onClose();
     }
   }

@@ -33,7 +33,7 @@ ReviewData.prototype.upUsefulness = function() {
 
 ReviewData.prototype.downUsefulness = function() {
 
-  if (this.onUsefulnessChange === 'function') {
+  if (typeof this.onUsefulnessChange === 'function') {
     this.onUsefulnessChange(this, { isUseful: false });
   }
 
