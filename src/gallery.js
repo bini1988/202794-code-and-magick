@@ -25,7 +25,8 @@ var Gallery = function(srcList) {
   this.onGalleryRightControlClick = this.onGalleryRightControlClick.bind(this);
   this.onGalleryLeftControlClick = this.onGalleryLeftControlClick.bind(this);
   this.onGalleryPictureLoad = this.onGalleryPictureLoad.bind(this);
-  this.onGalleryPictureLoadAborted = this.onGalleryPictureLoadAborted.bind(this);
+  this.onGalleryPictureLoadTimeout = this.onGalleryPictureLoadTimeout.bind(this);
+  this.onGalleryPictureLoadError = this.onGalleryPictureLoadError.bind(this);
   this.onHashChange = this.onHashChange.bind(this);
 
   window.addEventListener('hashchange', this.onHashChange);
@@ -99,7 +100,11 @@ Gallery.prototype.onGalleryPictureLoad = function() {
   this.element.classList.remove('invisible');
 };
 
-Gallery.prototype.onGalleryPictureLoadAborted = function() {
+Gallery.prototype.onGalleryPictureLoadError = function() {
+
+};
+
+Gallery.prototype.onGalleryPictureLoadTimeout = function() {
   this.activePictureImg.src = '';
 };
 
@@ -117,11 +122,12 @@ Gallery.prototype.restoreFromHash = function() {
 
   var args = location.hash.split('/');
 
-  var indexScreenshots = args.findIndex(function(item) {
-    return item === 'screenshots';
-  });
+  var indexScreenshots = args.reduce(function(obj, item, index) {
+    obj[item] = index;
+    return obj;
+  }, {})['screenshots'];
 
-  var pictureIndex = (indexScreenshots !== -1 && args.length > indexScreenshots)
+  var pictureIndex = ((indexScreenshots + 1) && args.length > indexScreenshots)
     ? args[indexScreenshots + 1] - 1 : 0;
 
   pictureIndex = isNaN(pictureIndex) ? 0 : pictureIndex;
@@ -150,10 +156,10 @@ Gallery.prototype.setActivePicture = function(pictureIndex) {
   this.activePictureImg = new Image(GALLERY_IMAGE_WIDHT, GALLERY_IMAGE_HEIGHT);
 
   this.activePictureImg.addEventListener('load', this.onGalleryPictureLoad);
-  this.activePictureImg.addEventListener('error', this.onGalleryPictureLoadAborted);
+  this.activePictureImg.addEventListener('error', this.onGalleryPictureLoadError);
 
   this.pictureLoadTimeout =
-    setTimeout(this.onGalleryPictureLoadAborted, IMAGE_LOAD_TIMEOUT);
+    setTimeout(this.onGalleryPictureLoadTimeout, IMAGE_LOAD_TIMEOUT);
 
   this.activePictureImg.src = this.pictures[this.activePictureIndex];
 };
