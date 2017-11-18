@@ -32,7 +32,8 @@ var Gallery = function(srcList) {
   window.addEventListener('hashchange', this.onHashChange);
 };
 
-utils.inherit(Gallery, BaseComponent);
+Gallery.prototype = utils.inherit(BaseComponent.prototype);
+Gallery.prototype.constructor = Gallery;
 
 Gallery.prototype.show = function(activePictureIndex) {
 

@@ -22,7 +22,8 @@ var Review = function(reviewData) {
   this.onUsefulnessChange = this.onUsefulnessChange.bind(this);
 };
 
-utils.inherit(Review, BaseComponent);
+Review.prototype = utils.inherit(BaseComponent.prototype);
+Review.prototype.constructor = Review;
 
 Review.prototype.IMAGE_RAITING_WIDTH = 40;
 Review.prototype.IMAGE_AUTHOR_WIDHT = 124;
