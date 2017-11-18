@@ -20,6 +20,14 @@ function throttle(callback, timeout) {
 
 function inherit(protoObj) {
 
+  if (protoObj == null) {
+    throw TypeError();
+  }
+
+  if (Object.create) {
+    return Object.create(protoObj);
+  }
+
   function NewObj() {}
 
   NewObj.prototype = protoObj;

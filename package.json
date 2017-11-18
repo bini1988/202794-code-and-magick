@@ -44,5 +44,8 @@
         "git add branch-name"
       ]
     }
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
   }
 }
